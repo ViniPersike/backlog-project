@@ -1,3 +1,5 @@
 import database
+import menu
 
-database.criar_tabela()
+database.create_table()
+menu.show_menu()

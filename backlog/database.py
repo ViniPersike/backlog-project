@@ -28,8 +28,9 @@ def create_table():
     )
     con.commit()
 
+#Inserts a game into the table
 def insert_game(title, year, time, rating):
     values = (title, year, time, rating)
-    cursor.execute("INSERT INTO games VALUES(%s, %s, %s, %s)", values)
+    cursor.execute("INSERT INTO games (title, release_year, time_played, rating) VALUES(%s, %s,%s, %s)", values)
     con.commit()
 

@@ -34,3 +34,9 @@ def insert_game(title, year, time, rating):
     cursor.execute("INSERT INTO games (title, release_year, time_played, rating) VALUES(%s, %s,%s, %s)", values)
     con.commit()
 
+def show_all_games():
+    cursor.execute("SELECT * FROM games")
+    rows = cursor.fetchall()
+    
+    for row in rows:
+        print(row)

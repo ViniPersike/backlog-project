@@ -10,16 +10,22 @@ def show_menu():
         option = int(input("Choose an option: "))
 
         match option:
+            #Exit program
             case 0:
                 print("Exiting program... ")
                 return
+            #Insert a game
             case 1:
                 title = input("Game title: ")
                 year = int(input("Release year: "))
                 time = int(input("Time played: "))
                 rating = float(input("Rating: "))
                 database.insert_game(title, year, time, rating)
-                return
+                print("Game added succesfully")
+            #Show all games
+            case 2:
+                database.show_all_games()
             case _:
-                return "Invalid option"
+                print("Invalid option.")
+
                 

@@ -72,22 +72,26 @@ def add_game_to_user(user_id, game_name, rating, time, review, release_year):
     con.commit()
     print("Game added")
 
-def show_all_games_from_user(request_id):
+def show_all_games_from_user(request_user_id):
     cursor = con.cursor()
 
     cursor.execute("SELECT games.name, rating FROM games JOIN (SELECT * FROM user_games WHERE user_id = %s) ON games.id = game_id",
-                   (request_id,))
+                   (request_user_id,))
 
     rows = cursor.fetchall()
-    columns = ["Title", "Rating"]
 
-    table = Table(title= "Your games")
+    if not rows:
+        print("You don't have any games yet.")
+    else:
+        columns = ["Title", "Rating"]
 
-    for column in columns:
-        table.add_column(column)
+        table = Table(title= "Your games")
 
-    for row in rows:
-        table.add_row(row[0], str(row[1]))
+        for column in columns:
+            table.add_column(column)
 
-    console = Console()
-    console.print(table)
+        for row in rows:
+            table.add_row(row[0], str(row[1]))
+
+        console = Console()
+        console.print(table)

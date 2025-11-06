@@ -33,7 +33,7 @@ def user_login():
                 if validation_id:
                     print(f"Welcome, {username}!")
                     sleep(0.5)
-                    show_menu()
+                    show_menu(validation_id)
                 else:
                     print("Invalid username or wrong password.")
             case "2":
@@ -50,6 +50,8 @@ def user_login():
                     print("Registration complete.")
             case "0":
                 print("Finishing program...")
+                cursor.close()
+                con.close()
                 sleep(0.5)
                 return
             case _:

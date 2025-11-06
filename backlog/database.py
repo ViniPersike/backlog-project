@@ -22,7 +22,8 @@ def create_table():
     cursor.execute(
     """CREATE TABLE IF NOT EXISTS games(
         id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        release_year INTEGER
         )
     """)
 
@@ -42,6 +43,7 @@ def create_table():
        user_id INTEGER NOT NULL,
        game_id INTEGER NOT NULL,
        rating REAL,
+       time INTEGER,
        review TEXT,
        FOREIGN KEY(user_id) REFERENCES users(id),
        FOREIGN KEY(game_id) REFERENCES games(id),
@@ -51,44 +53,30 @@ def create_table():
 
     con.commit()
 
-#Inserts a game into the table
-def insert_game(title, year, time, rating):
-    #creates a cursor in order to make queries to the database
-    cursor = con.cursor()
 
-    values = (title, year, time, rating)
-    cursor.execute("INSERT INTO games (title, release_year, time_played, rating) VALUES(%s, %s,%s, %s)", values)
-    con.commit()
-
-def show_all_games():
-    #creates a cursor in order to make queries to the database
-    cursor = con.cursor()
-
-    cursor.execute("SELECT * FROM games")
-    rows = cursor.fetchall()
-    
-    for row in rows:
-        print(row)
-
-def add_game_to_user(username, game_name, rating, review):
+def add_game_to_user(user_id, game_name, rating, time, review, release_year):
     #creates a cursor in order to make queries to the database
     cursor = con.cursor()
     
-    #Grants that the user exists
-    cursor.execute("INSERT OR IGNORE INTO users (username) VALUES (%s)", (username,))
-    cursor.execute("SELECT id FROM users WHERE username=%s", (username,))
-    user_id = cursor.fetchone()[0]
-
     #Grants that the game exists
-    cursor.execute("INSERT OR IGNORE INTO games (name) VALUES (%s)", (game_name))
+    cursor.execute("INSERT INTO games (name, release_year) VALUES (%s, %s)", (game_name, release_year))
     cursor.execute("SELECT id FROM games WHERE name = (%s)", (game_name,))
     game_id = cursor.fetchone()[0]
 
     #Creates the relation on the user_games table
-    cursor.execute("INSERT OR REPLACE INTO user_games (user_id, game_id, rating, review) VALUES (%s, %s, %s, %s)",
-                   (user_id, game_id, rating, review))
+    cursor.execute("INSERT INTO user_games (user_id, game_id, rating, time, review) VALUES (%s, %s, %s, %s, %s)",
+                   (user_id, game_id, rating, time, review))
     
     con.commit()
-    con.close()
-
     print("Game added")
+
+def show_all_games_from_user(request_id):
+    cursor = con.cursor()
+
+    cursor.execute("SELECT games.name, rating FROM games JOIN (SELECT * FROM user_games WHERE user_id = %s) ON games.id = game_id",
+                   (request_id,))
+
+    rows = cursor.fetchall()
+
+    for row in rows:
+        print(f"Game: {row[0]} | Rating: {row[1]}")

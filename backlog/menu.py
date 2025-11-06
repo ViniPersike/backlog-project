@@ -1,11 +1,10 @@
 import database
+from rich.console import Console
+from rich.table import Table
 
 def show_menu(login_id):
     while(True):
-        print(f"===== Main Menu =====")
-        print("1- Insert new game")
-        print("2- Show all games")
-        print("0- Log out")
+        main_menu_table()
 
         option = input("Choose an option: ")
 
@@ -28,3 +27,19 @@ def show_menu(login_id):
                 database.show_all_games_from_user(login_id)
             case _:
                 print("Invalid option.")
+
+def main_menu_table():
+    table = Table()
+    rows = [
+        ["1- Insert new game"],
+        ["2- Show all games"],
+        ["0- Log out"]
+    ]
+        
+    table.add_column("==== Main Menu ====")
+
+    for row in rows:
+        table.add_row(*row)
+
+    console = Console()
+    console.print(table)

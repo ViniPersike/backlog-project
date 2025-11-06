@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 import os
 import psycopg2
+from rich.console import Console
+from rich.table import Table
 
 load_dotenv()
 
@@ -77,6 +79,15 @@ def show_all_games_from_user(request_id):
                    (request_id,))
 
     rows = cursor.fetchall()
+    columns = ["Title", "Rating"]
+
+    table = Table(title= "Your games")
+
+    for column in columns:
+        table.add_column(column)
 
     for row in rows:
-        print(f"Game: {row[0]} | Rating: {row[1]}")
+        table.add_row(row[0], str(row[1]))
+
+    console = Console()
+    console.print(table)

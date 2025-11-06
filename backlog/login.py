@@ -2,6 +2,8 @@ from dotenv import load_dotenv
 from menu import show_menu
 import os
 import psycopg2
+from rich.console import Console
+from rich.table import Table
 from time import sleep
 
 load_dotenv()
@@ -17,9 +19,7 @@ def user_login():
     cursor = con.cursor()
 
     while(True):
-        print("1- Login")
-        print("2- Register")
-        print("0- Exit program")
+        login_menu()
         option = input("")
 
         match option:
@@ -58,3 +58,18 @@ def user_login():
                 print("Invalid option.")
         
 
+def login_menu():
+    table = Table()
+    rows = [
+        ["1- Login"],
+        ["2- Register"],
+        ["0- Exit program"]
+    ]
+
+    table.add_column("==== Login Menu ====")
+
+    for row in rows:
+        table.add_row(*row)
+    
+    console = Console()
+    console.print(table)

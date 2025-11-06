@@ -21,23 +21,24 @@ def create_table():
     #Creates the games table
     cursor.execute(
     """CREATE TABLE IF NOT EXISTS games(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL
         )
     """)
 
     #Creates the users table 
     cursor.execute(
     """CREATE TABLE IF NOT EXISTS users(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL
+        id SERIAL PRIMARY KEY,
+        name TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
         )
     """)
 
     #Creates the USER - GAMES relation table
     cursor.execute(
     """CREATE TABLE IF NOT EXISTS user_games(
-       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       id SERIAL PRIMARY KEY,
        user_id INTEGER NOT NULL,
        game_id INTEGER NOT NULL,
        rating REAL,
@@ -72,7 +73,7 @@ def show_all_games():
 def add_game_to_user(username, game_name, rating, review):
     #creates a cursor in order to make queries to the database
     cursor = con.cursor()
-
+    
     #Grants that the user exists
     cursor.execute("INSERT OR IGNORE INTO users (username) VALUES (%s)", (username,))
     cursor.execute("SELECT id FROM users WHERE username=%s", (username,))

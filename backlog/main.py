@@ -1,5 +1,6 @@
 import database
-import menu
+from login import user_login
 
 database.create_table()
-menu.show_menu()
+user_login()
+#menu.show_menu()

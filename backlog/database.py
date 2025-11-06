@@ -60,10 +60,17 @@ def add_game_to_user(user_id, game_name, rating, time, review, release_year):
     #creates a cursor in order to make queries to the database
     cursor = con.cursor()
     
-    #Grants that the game exists
-    cursor.execute("INSERT INTO games (name, release_year) VALUES (%s, %s)", (game_name, release_year))
+    #Checks if the game already exists
     cursor.execute("SELECT id FROM games WHERE name = (%s)", (game_name,))
-    game_id = cursor.fetchone()[0]
+    query = cursor.fetchone()
+    
+    #If the game already exists, gets it's id, if it doesn't, adds it to the database and gets the id
+    if query:
+        game_id = query[0]
+    else:
+        cursor.execute("INSERT INTO games (name, release_year) VALUES (%s, %s)", (game_name, release_year))
+        cursor.execute("SELECT id FROM games WHERE name = (%s)", (game_name,))
+        game_id = cursor.fetchone()[0]
 
     #Creates the relation on the user_games table
     cursor.execute("INSERT INTO user_games (user_id, game_id, rating, time, review) VALUES (%s, %s, %s, %s, %s)",

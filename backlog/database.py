@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 import os
 import psycopg2
+from rich.console import Console
+from rich.table import Table
 
 load_dotenv()
 
@@ -12,31 +14,84 @@ con = psycopg2.connect(
     password=os.getenv("DB_PASSWORD")
 )
 
-#create a cursor in order to make queries to the database
-cursor = con.cursor()
 
-#Creates the table if it doesn't exist
+#Creates the tables if they don't exist
 def create_table():
+    #creates a cursor in order to make queries to the database
+    cursor = con.cursor()
+
+    #Creates the games table
     cursor.execute(
     """CREATE TABLE IF NOT EXISTS games(
         id SERIAL PRIMARY KEY,
-        title TEXT NOT NULL,
-        release_year INTEGER,
-        time_played INTEGER,
-        rating FLOAT
-        )"""
-    )
+        name TEXT NOT NULL,
+        release_year INTEGER
+        )
+    """)
+
+    #Creates the users table 
+    cursor.execute(
+    """CREATE TABLE IF NOT EXISTS users(
+        id SERIAL PRIMARY KEY,
+        name TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+        )
+    """)
+
+    #Creates the USER - GAMES relation table
+    cursor.execute(
+    """CREATE TABLE IF NOT EXISTS user_games(
+       id SERIAL PRIMARY KEY,
+       user_id INTEGER NOT NULL,
+       game_id INTEGER NOT NULL,
+       rating REAL,
+       time INTEGER,
+       review TEXT,
+       FOREIGN KEY(user_id) REFERENCES users(id),
+       FOREIGN KEY(game_id) REFERENCES games(id),
+       UNIQUE(user_id, game_id)
+        )
+    """)
+
     con.commit()
 
-#Inserts a game into the table
-def insert_game(title, year, time, rating):
-    values = (title, year, time, rating)
-    cursor.execute("INSERT INTO games (title, release_year, time_played, rating) VALUES(%s, %s,%s, %s)", values)
-    con.commit()
 
-def show_all_games():
-    cursor.execute("SELECT * FROM games")
-    rows = cursor.fetchall()
+def add_game_to_user(user_id, game_name, rating, time, review, release_year):
+    #creates a cursor in order to make queries to the database
+    cursor = con.cursor()
     
-    for row in rows:
-        print(row)
+    #Grants that the game exists
+    cursor.execute("INSERT INTO games (name, release_year) VALUES (%s, %s)", (game_name, release_year))
+    cursor.execute("SELECT id FROM games WHERE name = (%s)", (game_name,))
+    game_id = cursor.fetchone()[0]
+
+    #Creates the relation on the user_games table
+    cursor.execute("INSERT INTO user_games (user_id, game_id, rating, time, review) VALUES (%s, %s, %s, %s, %s)",
+                   (user_id, game_id, rating, time, review))
+    
+    con.commit()
+    print("Game added")
+
+def show_all_games_from_user(request_user_id):
+    cursor = con.cursor()
+
+    cursor.execute("SELECT games.name, rating FROM games JOIN (SELECT * FROM user_games WHERE user_id = %s) ON games.id = game_id",
+                   (request_user_id,))
+
+    rows = cursor.fetchall()
+
+    if not rows:
+        print("You don't have any games yet.")
+    else:
+        columns = ["Title", "Rating"]
+
+        table = Table(title= "Your games")
+
+        for column in columns:
+            table.add_column(column)
+
+        for row in rows:
+            table.add_row(row[0], str(row[1]))
+
+        console = Console()
+        console.print(table)

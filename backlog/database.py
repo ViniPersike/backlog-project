@@ -14,7 +14,6 @@ con = psycopg2.connect(
     password=os.getenv("DB_PASSWORD")
 )
 
-
 #Creates the tables if they don't exist
 def create_table():
     #creates a cursor in order to make queries to the database

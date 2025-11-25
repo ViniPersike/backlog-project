@@ -104,7 +104,6 @@ def add_game_to_user(user_id, game_name, rating, time, review, release_year):
                    (user_id, game_id, rating, time, review))
     
     con.commit()
-    print("Game added")
 
 def show_all_games_from_user(request_user_id):
     cursor = con.cursor()

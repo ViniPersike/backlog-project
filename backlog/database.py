@@ -41,15 +41,42 @@ def create_table():
     #Creates the USER - GAMES relation table
     cursor.execute(
     """CREATE TABLE IF NOT EXISTS user_games(
-       id SERIAL PRIMARY KEY,
        user_id INTEGER NOT NULL,
        game_id INTEGER NOT NULL,
        rating REAL,
        time INTEGER,
        review TEXT,
+       PRIMARY KEY(user_id, game_id),
        FOREIGN KEY(user_id) REFERENCES users(id),
        FOREIGN KEY(game_id) REFERENCES games(id),
        UNIQUE(user_id, game_id)
+        )
+    """)
+    
+    #Creates the DEVELOPERS table
+    cursor.execute(
+    """CREATE TABLE IF NOT EXISTS developers(
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL
+        )
+    """)
+
+    #Creates the GAMES - DEVELOPERS relation table
+    cursor.execute(
+    """CREATE TABLE IF NOT EXISTS developed(
+        developer_id INTEGER NOT NULL,
+        game_id INTEGER NOT NULL,
+        PRIMARY KEY(developer_id, game_id),
+        FOREIGN KEY(developer_id) REFERENCES developers(id),
+        FOREIGN KEY(game_id) REFERENCES games(id)
+        )
+    """)
+
+    #Creates the GENRE table
+    cursor.execute(
+    """CREATE TABLE IF NOT EXISTS genre(
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL
         )
     """)
 

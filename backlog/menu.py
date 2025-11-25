@@ -16,12 +16,24 @@ def show_menu(login_id):
             #Insert a game
             case "1":
                 title = input("Game title: ")
-                year = int(input("Release year: "))
+
+                validation_title = database.search_game(title)
+
+                validation_game_user = database.search_game_user(title, login_id)
+
+                if not validation_title:
+                    print("The game not exists")
+                    continue
+                elif validation_game_user:
+                    print("The game already is in your list")
+                    continue
+
+                # year = int(input("Release year: "))
                 time = int(input("Time played: "))
                 rating = float(input("Rating: "))
                 review = input("Write a short review: ")
-                database.add_game_to_user(login_id, title, rating, time, review, year)
-                print("Game added succesfully")
+                database.add_game_to_user(login_id, title, rating, time, review)
+                print("Game added succesfully to your list")
             #Show all games
             case "2":
                 database.show_all_games_from_user(login_id)

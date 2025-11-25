@@ -82,7 +82,7 @@ def create_table():
     con.commit()
 
 
-def add_game_to_user(user_id, game_name, rating, time, review, release_year):
+def add_game_to_user(user_id, game_name, rating, time, review):
     #creates a cursor in order to make queries to the database
     cursor = con.cursor()
     
@@ -94,7 +94,7 @@ def add_game_to_user(user_id, game_name, rating, time, review, release_year):
     if query:
         game_id = query[0]
     else:
-        cursor.execute("INSERT INTO games (name, release_year) VALUES (%s, %s)", (game_name, release_year))
+        cursor.execute("INSERT INTO games (name) VALUES (%s)", (game_name,))
         cursor.execute("SELECT id FROM games WHERE name = (%s)", (game_name,))
         game_id = cursor.fetchone()[0]
 
@@ -103,7 +103,6 @@ def add_game_to_user(user_id, game_name, rating, time, review, release_year):
                    (user_id, game_id, rating, time, review))
     
     con.commit()
-    print("Game added")
 
 def show_all_games_from_user(request_user_id):
     cursor = con.cursor()

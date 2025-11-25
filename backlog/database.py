@@ -128,3 +128,30 @@ def show_all_games_from_user(request_user_id):
 
         console = Console()
         console.print(table)
+
+def search_game(title):
+
+    cursor = con.cursor()
+
+    cursor.execute("SELECT name FROM games WHERE name = (%s)", (title,))
+
+    return cursor.fetchone()
+
+def search_game_user(title, login_id):
+
+    cursor = con.cursor()
+
+    cursor.execute("SELECT name FROM user_games NATURAL JOIN games WHERE name = (%s) AND user_id = (%s)", (title, login_id))
+
+    return cursor.fetchone()
+
+def remover_jogo(login_id, title):
+
+    cursor = con.cursor()
+
+    validation_game_user = search_game_user(title, login_id)
+
+    if validation_game_user:
+        cursor.execute("DELETE FROM user_games NATURAL JOIN games WHERE user_id = (%s) AND game_id IN (SELECT game_id FROM games WHERE title = (%s)) )", (login_id, title))
+    else:
+        print("The game not exists for this user")

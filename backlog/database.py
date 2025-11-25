@@ -14,6 +14,21 @@ con = psycopg2.connect(
     password=os.getenv("DB_PASSWORD")
 )
 
+def search_game(title):
+
+    cursor = con.cursor()
+
+    cursor.execute("SELECT name FROM games WHERE name = (%s)", (title,))
+
+    return cursor.fetchone()
+
+def search_game_user(title, login_id):
+
+    cursor = con.cursor()
+
+    cursor.execute("SELECT name FROM user_games NATURAL JOIN games WHERE name = (%s) AND user_id = (%s)", (title, login_id))
+
+    return cursor.fetchone()
 
 #Creates the tables if they don't exist
 def create_table():
@@ -83,7 +98,7 @@ def create_table():
     con.commit()
 
 
-def add_game_to_user(user_id, game_name, rating, time, review, release_year):
+def add_game_to_user(user_id, game_name, rating, time, review):
     #creates a cursor in order to make queries to the database
     cursor = con.cursor()
     
@@ -95,7 +110,7 @@ def add_game_to_user(user_id, game_name, rating, time, review, release_year):
     if query:
         game_id = query[0]
     else:
-        cursor.execute("INSERT INTO games (name, release_year) VALUES (%s, %s)", (game_name, release_year))
+        cursor.execute("INSERT INTO games (name) VALUES (%s)", (game_name,))
         cursor.execute("SELECT id FROM games WHERE name = (%s)", (game_name,))
         game_id = cursor.fetchone()[0]
 

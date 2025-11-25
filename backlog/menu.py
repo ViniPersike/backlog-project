@@ -37,6 +37,9 @@ def show_menu(login_id):
             #Show all games
             case "2":
                 database.show_all_games_from_user(login_id)
+            case "3":
+                title = input("Title: ")
+                database.remover_jogo(title, login_id)
             case _:
                 print("Invalid option.")
 
@@ -45,6 +48,7 @@ def main_menu_table():
     rows = [
         ["1- Insert new game"],
         ["2- Show all games"],
+        ["3- Remove game from own list"],
         ["0- Log out"]
     ]
         

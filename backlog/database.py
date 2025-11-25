@@ -140,17 +140,18 @@ def search_game_user(title, login_id):
 
     cursor = con.cursor()
 
-    cursor.execute("SELECT name FROM user_games NATURAL JOIN games WHERE name = (%s) AND user_id = (%s)", (title, login_id))
+    cursor.execute("SELECT name FROM user_games JOIN games ON id = game_id WHERE user_id = (%s) AND name = (%s)", (login_id, title))
 
     return cursor.fetchone()
 
-def remover_jogo(login_id, title):
+def remover_jogo(title, login_id):
 
     cursor = con.cursor()
 
     validation_game_user = search_game_user(title, login_id)
 
     if validation_game_user:
-        cursor.execute("DELETE FROM user_games NATURAL JOIN games WHERE user_id = (%s) AND game_id IN (SELECT game_id FROM games WHERE title = (%s)) )", (login_id, title))
+        cursor.execute("DELETE FROM user_games WHERE game_id = (SELECT id FROM games WHERE name = (%s) AND user_id = (%s))", (title, login_id))
+        con.commit()
     else:
-        print("The game not exists for this user")
+        print("The game not exists for this user") 

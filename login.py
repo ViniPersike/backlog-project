@@ -1,0 +1,79 @@
+from dotenv import load_dotenv
+from menu import show_menu
+from menu import show_menu_admin
+import os
+import psycopg2
+from rich.console import Console
+from rich.table import Table
+from time import sleep
+
+load_dotenv()
+
+def user_login():
+    con = psycopg2.connect(
+        host=os.getenv("DB_HOST"),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD")
+    )
+
+    cursor = con.cursor()
+
+    while(True):
+        login_menu()
+        option = input("")
+
+        match option:
+            case "1":
+                username = input("Username: ")
+                password = input("Password: ")
+
+                cursor.execute("SELECT id FROM users WHERE name = %s AND password = %s", (username, password))
+                validation_id = cursor.fetchone()
+
+                if validation_id:
+                    print(f"Welcome, {username}!")
+                    sleep(0.5)
+                    if(username == "admin" and password == "123"):
+                        show_menu_admin(validation_id)
+                    else:
+                        show_menu(validation_id)
+                else:
+                    print("Invalid username or wrong password.")
+            case "2":
+                username = input("Username: ")
+                cursor.execute("SELECT name FROM users WHERE name = %s", (username,))
+                name_validation = cursor.fetchone()
+                
+                if name_validation:
+                    print("Username already exists")
+                else:
+                    password = input("Password: ")
+                    cursor.execute("INSERT INTO users (name, password) VALUES (%s, %s)", (username, password))
+                    con.commit()
+                    print("Registration complete.")
+            case "0":
+                print("Finishing program...")
+                cursor.close()
+                con.close()
+                sleep(0.5)
+                return
+            case _:
+                print("Invalid option.")
+        
+
+def login_menu():
+    table = Table()
+    rows = [
+        ["1- Login"],
+        ["2- Register"],
+        ["0- Exit program"]
+    ]
+
+    table.add_column("==== Login Menu ====")
+
+    for row in rows:
+        table.add_row(*row)
+    
+    console = Console()
+    console.print(table)

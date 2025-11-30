@@ -2,6 +2,7 @@ import database
 from rich.console import Console
 from rich.table import Table
 
+
 def show_menu(login_id):
     while(True):
         main_menu_table()
@@ -91,7 +92,6 @@ def main_menu_table():
     console.print(table)
 
 
-
 def show_insert_and_remove_menu(type):
 
     while(True):
@@ -136,19 +136,16 @@ def show_insert_and_remove_menu(type):
                 case "2":
                     name = input("What genre: ")
                     database.add_genre(name)
-                    print(f"{name} was added.")
                     
                 #Developer
                 case "3":
                     dev = input("Developers name: ")
                     database.add_developer(dev)
-                    print(f"{dev} was added")
 
                 #User
                 case "4":    
                     usr = input("User name: ")
                     database.add_user(usr)
-                    print(f"New user ({usr}) was registered")
 
                 case _:
                     print("Invalid option.")
@@ -206,6 +203,7 @@ def show_insert_and_remove_menu(type):
                 case _:
                     print("Invalid option.")
 
+
 def show_all_menu():
 
     while(True):
@@ -245,6 +243,7 @@ def show_all_menu():
             case _:
                 print("Invalid option.")
 
+
 def main_menu_admin():
 
     table = Table()
@@ -262,6 +261,7 @@ def main_menu_admin():
 
     console = Console()
     console.print(table)
+
 
 def insert_and_remove_menu():
 
@@ -281,6 +281,7 @@ def insert_and_remove_menu():
 
     console = Console()
     console.print(table)
+
 
 def all_menu():
 

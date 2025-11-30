@@ -14,6 +14,7 @@ con = psycopg2.connect(
     password=os.getenv("DB_PASSWORD")
 )
 
+
 #Creates the tables if they don't exist
 def create_table():
     #creates a cursor in order to make queries to the database
@@ -107,6 +108,7 @@ def add_game_to_user(user_id, game_name, rating, time, review, status):
     
     con.commit()
 
+
 def show_all(type):
 
     cursor = con.cursor()
@@ -132,6 +134,7 @@ def show_all(type):
 
         console = Console()
         console.print(table)
+
 
 def show_all_games():
 
@@ -163,6 +166,7 @@ def show_all_games():
 
         console = Console()
         console.print(table)
+
 
 def show_all_games_from_genre(request_genre):
 
@@ -197,6 +201,7 @@ def show_all_games_from_genre(request_genre):
         console = Console()
         console.print(table)
 
+
 def show_all_games_from_user(request_user_id):
     cursor = con.cursor()
 
@@ -221,6 +226,7 @@ def show_all_games_from_user(request_user_id):
         console = Console()
         console.print(table)
 
+
 def search_game(title):
 
     cursor = con.cursor()
@@ -229,6 +235,7 @@ def search_game(title):
 
     return cursor.fetchone()
 
+
 def search_game_user(title, login_id):
 
     cursor = con.cursor()
@@ -236,6 +243,7 @@ def search_game_user(title, login_id):
     cursor.execute("SELECT name FROM user_games JOIN games ON id = game_id WHERE user_id = (%s) AND name = (%s)", (login_id, title))
 
     return cursor.fetchone()
+
 
 def remover_jogo(title, login_id):
 
@@ -253,22 +261,45 @@ def remover_jogo(title, login_id):
 def add_genre(name):
     cursor = con.cursor()
 
-    cursor.execute("INSERT INTO genre (name) VALUES (%s)", (name,))
-    con.commit()
+    cursor.execute("SELECT id FROM genre WHERE name = (%s)", (name,))
+    name_validation = cursor.fetchone()
+
+    if name_validation:
+        print("Genre already exists.")
+    else:
+        cursor.execute("INSERT INTO genre (name) VALUES (%s)", (name,))
+        con.commit()
+        print(f"{name} was added.")
+
 
 def add_developer(name):
     cursor = con.cursor()
 
-    cursor.execute("INSERT INTO developers (name) VALUES (%s)", (name,))
-    con.commit()
+    cursor.execute("SELECT id FROM developers WHERE name = (%s)", (name,))
+    name_validation = cursor.fetchone()
+
+    if name_validation:
+        print("Developer already exists.")
+    else:
+        cursor.execute("INSERT INTO developers (name) VALUES (%s)", (name,))
+        con.commit()
+        print(f"{name} was added")
 
 
 def add_user(name):
     cursor = con.cursor()
 
-    default_password = 123
-    cursor.execute("INSERT INTO users (name, password) VALUES (%s, %s)", (name, default_password))
-    con.commit()
+    cursor.execute("SELECT name FROM users WHERE name = %s", (name,))
+    name_validation = cursor.fetchone()
+    
+    if name_validation:
+        print("Username already exists")
+    else:
+        default_password = 123
+        cursor.execute("INSERT INTO users (name, password) VALUES (%s, %s)", (name, default_password))
+        con.commit()
+        print(f"New user ({name}) was registered")
+
 
 def add_game_adm(name, year, genres, developer):
     cursor = con.cursor()
@@ -316,6 +347,7 @@ def search_genre(genre):
 
     return cursor.fetchone()
 
+
 def search_dev(dev):
     cursor = con.cursor()
 
@@ -336,6 +368,7 @@ def remove_user(user):
     cursor.execute("DELETE FROM users WHERE name = (%s)", (user,))
     con.commit()
     return True
+
 
 def remove_dev(dev):
     cursor = con.cursor()

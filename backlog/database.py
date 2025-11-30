@@ -19,12 +19,30 @@ def create_table():
     #creates a cursor in order to make queries to the database
     cursor = con.cursor()
 
+    #Creates the GENRE table
+    cursor.execute(
+    """CREATE TABLE IF NOT EXISTS genre(
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL
+        )
+    """)
+
+    #Creates the DEVELOPERS table
+    cursor.execute(
+    """CREATE TABLE IF NOT EXISTS developers(
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL
+        )
+    """)
+
     #Creates the games table
     cursor.execute(
     """CREATE TABLE IF NOT EXISTS games(
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
-        release_year INTEGER
+        release_year INTEGER,
+        developer_id INTEGER NOT NULL,
+        FOREIGN KEY (developer_id) REFERENCES developers(id)
         )
     """)
 
@@ -34,6 +52,17 @@ def create_table():
         id SERIAL PRIMARY KEY,
         name TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL
+        )
+    """)
+
+    #Creates the games-genre relation table
+    cursor.execute(
+    """CREATE TABLE IF NOT EXISTS game_genres(
+        game_id INTEGER NOT NULL,
+        genre_id INTEGER NOT NULL,
+        PRIMARY KEY (game_id, genre_id),
+        FOREIGN KEY (game_id) REFERENCES games(id),
+        FOREIGN KEY (genre_id) REFERENCES genre(id)
         )
     """)
 
@@ -52,33 +81,6 @@ def create_table():
         )
     """)
     
-    #Creates the DEVELOPERS table
-    cursor.execute(
-    """CREATE TABLE IF NOT EXISTS developers(
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL
-        )
-    """)
-
-    #Creates the GAMES - DEVELOPERS relation table
-    cursor.execute(
-    """CREATE TABLE IF NOT EXISTS developed(
-        developer_id INTEGER NOT NULL,
-        game_id INTEGER NOT NULL,
-        PRIMARY KEY(developer_id, game_id),
-        FOREIGN KEY(developer_id) REFERENCES developers(id),
-        FOREIGN KEY(game_id) REFERENCES games(id)
-        )
-    """)
-
-    #Creates the GENRE table
-    cursor.execute(
-    """CREATE TABLE IF NOT EXISTS genre(
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL
-        )
-    """)
-
     con.commit()
 
 
@@ -103,6 +105,7 @@ def add_game_to_user(user_id, game_name, rating, time, review):
                    (user_id, game_id, rating, time, review))
     
     con.commit()
+
 
 def show_all_games():
 
@@ -178,4 +181,78 @@ def remover_jogo(title, login_id):
         cursor.execute("DELETE FROM user_games WHERE game_id = (SELECT id FROM games WHERE name = (%s) AND user_id = (%s))", (title, login_id))
         con.commit()
     else:
-        print("The game not exists for this user") 
+        print("The game doesn't exist for this user") 
+
+
+def add_genre(name):
+    cursor = con.cursor()
+
+    cursor.execute("INSERT INTO genre (name) VALUES (%s)", (name,))
+    con.commit()
+
+def add_developer(name):
+    cursor = con.cursor()
+
+    cursor.execute("INSERT INTO developers (name) VALUES (%s)", (name,))
+    con.commit()
+
+
+def add_user(name):
+    cursor = con.cursor()
+
+    default_password = 123
+    cursor.execute("INSERT INTO users (name, password) VALUES (%s, %s)", (name, default_password))
+    con.commit()
+
+def add_game_adm(name, year, genres, developer):
+    cursor = con.cursor()
+
+    # Obter o ID do developer
+    cursor.execute("SELECT id FROM developers WHERE name = %s", (developer,))
+    developer_id = cursor.fetchone()
+
+    if not developer_id:
+        print("Developer not found.")
+        return
+
+    developer_id = developer_id[0]
+
+    # Criar o jogo (SEM genre)
+    cursor.execute(
+        "INSERT INTO games (name, release_year, developer_id) VALUES (%s, %s, %s) RETURNING id",
+        (name, year, developer_id)
+    )
+    game_id = cursor.fetchone()[0]
+
+    # Associar múltiplos gêneros
+    for genre in genres:
+        cursor.execute("SELECT id FROM genre WHERE name = %s", (genre,))
+        genre_id = cursor.fetchone()
+
+        if not genre_id:
+            print(f"Genre '{genre}' not found. Skipping.")
+            continue
+
+        genre_id = genre_id[0]
+
+        cursor.execute(
+            "INSERT INTO game_genres (game_id, genre_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+            (game_id, genre_id)
+        )
+
+    con.commit()
+
+
+def search_genre(genre):
+    cursor = con.cursor()
+
+    cursor.execute("SELECT id FROM genre WHERE name = %s", (genre,))
+
+    return cursor.fetchone()
+
+def search_dev(dev):
+    cursor = con.cursor()
+
+    cursor.execute("SELECT id FROM developers WHERE name = %s", (dev,))
+
+    return cursor.fetchone()

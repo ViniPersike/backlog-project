@@ -22,7 +22,7 @@ def show_menu(login_id):
                 validation_game_user = database.search_game_user(title, login_id)
 
                 if not validation_title:
-                    print("The game not exists")
+                    print("The game doesn't existe")
                     continue
                 elif validation_game_user:
                     print("The game already is in your list")
@@ -43,22 +43,6 @@ def show_menu(login_id):
             case _:
                 print("Invalid option.")
 
-def main_menu_table():
-    table = Table()
-    rows = [
-        ["1- Insert new game in my list"],
-        ["2- Show all games from my list"],
-        ["3- Remove game from own list"],
-        ["0- Log out"]
-    ]
-        
-    table.add_column("==== Main Menu ====")
-
-    for row in rows:
-        table.add_row(*row)
-
-    console = Console()
-    console.print(table)
 
 def show_menu_admin(login_id):
 
@@ -89,6 +73,25 @@ def show_menu_admin(login_id):
                 print("Invalid option.")
 
 
+def main_menu_table():
+    table = Table()
+    rows = [
+        ["1- Insert new game in my list"],
+        ["2- Show all games from my list"],
+        ["3- Remove game from own list"],
+        ["0- Log out"]
+    ]
+        
+    table.add_column("==== Main Menu ====")
+
+    for row in rows:
+        table.add_row(*row)
+
+    console = Console()
+    console.print(table)
+
+
+
 def show_insert_and_remove_menu(type):
 
     while(True):
@@ -107,18 +110,41 @@ def show_insert_and_remove_menu(type):
                 #Game
                 case "1":
                     title = input("Game title: ")
+                    year = input("Release year: ")
+                    genres_raw = input("Genres (separate by comma): ")
+                    genres = [g.strip() for g in genres_raw.split(",")]
 
+                    
+                    for g in genres:
+                            if not database.search_genre(g):
+                                print(f"Invalid genre: {g}")
+                                break
+                    else:
+                        dev = input("Developer: ")
+                        if not database.search_dev(dev):
+                            print("Invalid developer")
+                            continue
+
+                    database.add_game_adm(title, year, genres, dev)
+                    print(f"{title} was added")
+                    
                 #Gender
                 case "2":
-                    type = input("What genre: ")
+                    name = input("What genre: ")
+                    database.add_genre(name)
+                    print(f"{name} was added.")
                     
                 #Developer
                 case "3":
-                    dev = input("Developers name")
-                    
+                    dev = input("Developers name: ")
+                    database.add_developer(dev)
+                    print(f"{dev} was added")
+
                 #User
                 case "4":    
-                    usr = input("User name")
+                    usr = input("User name: ")
+                    database.add_user(usr)
+                    print(f"New user ({usr}) was registered")
 
                 case _:
                     print("Invalid option.")

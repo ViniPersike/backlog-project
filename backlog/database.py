@@ -42,7 +42,7 @@ def create_table():
         name TEXT NOT NULL,
         release_year INTEGER,
         developer_id INTEGER NOT NULL,
-        FOREIGN KEY (developer_id) REFERENCES developers(id)
+        FOREIGN KEY (developer_id) REFERENCES developers(id) ON DELETE CASCADE
         )
     """)
 
@@ -61,8 +61,8 @@ def create_table():
         game_id INTEGER NOT NULL,
         genre_id INTEGER NOT NULL,
         PRIMARY KEY (game_id, genre_id),
-        FOREIGN KEY (game_id) REFERENCES games(id),
-        FOREIGN KEY (genre_id) REFERENCES genre(id)
+        FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE,
+        FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE
         )
     """)
 
@@ -76,8 +76,8 @@ def create_table():
        status TEXT,
        review TEXT,
        PRIMARY KEY(user_id, game_id),
-       FOREIGN KEY(user_id) REFERENCES users(id),
-       FOREIGN KEY(game_id) REFERENCES games(id),
+       FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+       FOREIGN KEY(game_id) REFERENCES games(id) ON DELETE CASCADE,
        UNIQUE(user_id, game_id)
         )
     """)
@@ -138,9 +138,9 @@ def show_all_games():
     cursor = con.cursor()
 
     cursor.execute("""SELECT games.name, AVG(rating), genre.name, developers.name, games.release_year 
-                        FROM games JOIN game_genres ON games.id = game_genres.game_id
-                            JOIN genre ON game_genres.genre_id = genre.id
-                            JOIN developers ON developers.id = games.developer_id
+                        FROM games LEFT JOIN game_genres ON games.id = game_genres.game_id
+                            LEFT JOIN genre ON game_genres.genre_id = genre.id
+                            LEFT JOIN developers ON developers.id = games.developer_id
                             LEFT JOIN user_games ON user_games.game_id = games.id
                             
                             GROUP BY games.name, genre.name, developers.name, games.release_year
@@ -169,9 +169,9 @@ def show_all_games_from_genre(request_genre):
     cursor = con.cursor()
 
     cursor.execute("""SELECT games.name, AVG(rating), genre.name, developers.name, games.release_year
-                        FROM games JOIN game_genres ON games.id = game_genres.game_id
-                            JOIN genre ON game_genres.genre_id = genre.id
-                            JOIN developers ON developers.id = games.developer_id
+                        FROM games LEFT JOIN game_genres ON games.id = game_genres.game_id
+                            LEFT JOIN genre ON game_genres.genre_id = genre.id
+                            LEFT JOIN developers ON developers.id = games.developer_id
                             LEFT JOIN user_games ON user_games.game_id = games.id
                    
                             WHERE genre.name = (%s)
@@ -322,3 +322,31 @@ def search_dev(dev):
     cursor.execute("SELECT id FROM developers WHERE name = %s", (dev,))
 
     return cursor.fetchone()
+
+
+def remove_user(user):
+    cursor = con.cursor()
+
+    cursor.execute("DELETE FROM users WHERE name = (%s)", (user,))
+    con.commit()
+
+
+def remove_dev(dev):
+    cursor = con.cursor()
+
+    cursor.execute("DELETE FROM developers WHERE name = (%s)", (dev,))
+    con.commit()
+
+
+def remove_genre(genre):
+    cursor = con.cursor()
+
+    cursor.execute("DELETE FROM genre WHERE name = (%s)", (genre,))
+    con.commit()
+
+
+def remove_game(title):
+    cursor = con.cursor()
+    
+    cursor.execute("DELETE FROM games WHERE name = (%s)", (title,))
+    con.commit()

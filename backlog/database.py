@@ -327,26 +327,53 @@ def search_dev(dev):
 def remove_user(user):
     cursor = con.cursor()
 
+    cursor.execute("SELECT id FROM users WHERE name = (%s)", (user,))
+    validation_id = cursor.fetchone()
+
+    if not validation_id:
+        return False
+    
     cursor.execute("DELETE FROM users WHERE name = (%s)", (user,))
     con.commit()
-
+    return True
 
 def remove_dev(dev):
     cursor = con.cursor()
 
+    cursor.execute("SELECT id FROM developers WHERE name = (%s)", (dev,))
+    validation_id = cursor.fetchone()
+
+    if not validation_id:
+        return False
+
     cursor.execute("DELETE FROM developers WHERE name = (%s)", (dev,))
     con.commit()
+    return True
 
 
 def remove_genre(genre):
     cursor = con.cursor()
 
+    cursor.execute("SELECT id FROM genre WHERE name = (%s)", (genre,))
+    validation_id = cursor.fetchone()
+
+    if not validation_id:
+        return False
+
     cursor.execute("DELETE FROM genre WHERE name = (%s)", (genre,))
     con.commit()
+    return True
 
 
 def remove_game(title):
     cursor = con.cursor()
     
+    cursor.execute("SELECT id FROM games WHERE name = (%s)", (title,))
+    validation_id = cursor.fetchone()
+
+    if not validation_id:
+        return False
+
     cursor.execute("DELETE FROM games WHERE name = (%s)", (title,))
     con.commit()
+    return True

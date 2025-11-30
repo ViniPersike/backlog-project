@@ -167,26 +167,41 @@ def show_insert_and_remove_menu(type):
                 #Game
                 case "1":
                     title = input("Game title: ")
-                    database.remove_game(title)
-                    print(f"Game: {title} was removed.")
+                    check = database.remove_game(title)
 
-                #Gender
+                    if not check:
+                        print("Game doesn't exist.")
+                    else:
+                        print(f"Game: {title} was removed.")
+
+                #Genre
                 case "2":
                     genre = input("What genre: ")
-                    database.remove_genre(genre)
-                    print(f"Genre: {genre} was removed.")
+                    
+                    check = database.remove_genre(genre)
+                    if not check:
+                        print("Genre doesn't exist.")
+                    else:
+                        print(f"Genre: {genre} was removed.")
                     
                 #Developer
                 case "3":
                     dev = input("Developers name: ")
-                    database.remove_dev(dev)
-                    print(f"Developer: {dev} was removed.")
+
+                    check = database.remove_dev(dev)
+                    if not check:
+                        print("Developer doesn't exist.")
+                    else:
+                        print(f"Developer: {dev} was removed.")
                     
                 #User
                 case "4":    
                     usr = input("User name: ")
-                    database.remove_user(usr)
-                    print(f"User: {usr} was removed")
+                    check = database.remove_user(usr)
+                    if not check:
+                        print("User doesn't exist.")
+                    else:
+                        print(f"User: {usr} was removed.")
 
                 case _:
                     print("Invalid option.")

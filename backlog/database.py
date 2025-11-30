@@ -111,14 +111,19 @@ def show_all_games():
 
     cursor = con.cursor()
 
-    cursor.execute("SELECT name FROM games")
+    cursor.execute("""SELECT games.name, AVG(rating), genre.name, developers.name
+                        FROM games, game_genres, genre, developers, user_games WHERE
+                            games.id = game_genres.game_id AND game_genres.genre_id = genre.id
+                            AND developers.id = games.developer_id AND user_games.game_id = games.id
+                            
+                            GROUP BY games.name, genre.name, developers.name """)
 
     rows = cursor.fetchall()
 
     if not rows:
         print("Don't have any games yet.")
     else:
-        columns = ["Title"]
+        columns = ["Title", "Average Rating", "Genre", "Developer"]
 
         table = Table(title= "Games")
 
@@ -126,7 +131,7 @@ def show_all_games():
             table.add_column(column)
 
         for row in rows:
-            table.add_row(row[0])
+            table.add_row(row[0], str(row[1]), str(row[2]), str(row[3]))
 
         console = Console()
         console.print(table)

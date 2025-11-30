@@ -28,11 +28,11 @@ def show_menu(login_id):
                     print("The game already is in your list")
                     continue
 
-                # year = int(input("Release year: "))
                 time = int(input("Time played: "))
                 rating = float(input("Rating: "))
                 review = input("Write a short review: ")
-                database.add_game_to_user(login_id, title, rating, time, review)
+                status = input("Current status: ")
+                database.add_game_to_user(login_id, title, rating, time, review, status)
                 print("Game added succesfully to your list")
             #Show all games
             case "2":
@@ -204,18 +204,20 @@ def show_all_menu():
             #Games with Genre
             case "2":
                 type = input("What genre: ")
+
+                database.show_all_games_from_genre(type)
                 
             #Genre
             case "3":
-                database.show_all_genres()
+                database.show_all("genre")
                
             #Developers
             case "4":
-                database.show_all_dev()
+                database.show_all("developers")
 
             #User
             case "5":
-                database.show_all_usr()
+                database.show_all("users")
 
             case _:
                 print("Invalid option.")

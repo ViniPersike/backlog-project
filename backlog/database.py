@@ -73,6 +73,7 @@ def create_table():
        game_id INTEGER NOT NULL,
        rating REAL,
        time INTEGER,
+       status TEXT,
        review TEXT,
        PRIMARY KEY(user_id, game_id),
        FOREIGN KEY(user_id) REFERENCES users(id),
@@ -84,7 +85,7 @@ def create_table():
     con.commit()
 
 
-def add_game_to_user(user_id, game_name, rating, time, review):
+def add_game_to_user(user_id, game_name, rating, time, review, status):
     #creates a cursor in order to make queries to the database
     cursor = con.cursor()
     
@@ -101,73 +102,27 @@ def add_game_to_user(user_id, game_name, rating, time, review):
         game_id = cursor.fetchone()[0]
 
     #Creates the relation on the user_games table
-    cursor.execute("INSERT INTO user_games (user_id, game_id, rating, time, review) VALUES (%s, %s, %s, %s, %s)",
-                   (user_id, game_id, rating, time, review))
+    cursor.execute("INSERT INTO user_games (user_id, game_id, rating, time, review, status) VALUES (%s, %s, %s, %s, %s, %s)",
+                   (user_id, game_id, rating, time, review, status))
     
     con.commit()
 
-def show_all_genres():
+def show_all(type):
 
     cursor = con.cursor()
 
-    cursor.execute("SELECT name FROM genre")
+    query = f"SELECT name FROM {type}"
+
+    cursor.execute(query)
 
     rows = cursor.fetchall()
 
     if not rows:
-        print("Don't have any genres yet.")
+        print("Don't have any {type} yet.")
     else:
         columns = ["Name"]
 
-        table = Table(title= "Genres")
-
-        for column in columns:
-            table.add_column(column)
-
-        for row in rows:
-            table.add_row(row[0])
-
-        console = Console()
-        console.print(table)
-
-def show_all_dev():
-
-    cursor = con.cursor()
-
-    cursor.execute("SELECT name FROM developers")
-
-    rows = cursor.fetchall()
-
-    if not rows:
-        print("Don't have any developers yet.")
-    else:
-        columns = ["Name"]
-
-        table = Table(title= "Developers")
-
-        for column in columns:
-            table.add_column(column)
-
-        for row in rows:
-            table.add_row(row[0])
-
-        console = Console()
-        console.print(table)
-
-def show_all_usr():
-
-    cursor = con.cursor()
-
-    cursor.execute("SELECT name FROM users")
-
-    rows = cursor.fetchall()
-
-    if not rows:
-        print("Don't have any users yet.")
-    else:
-        columns = ["Name"]
-
-        table = Table(title= "Users")
+        table = Table(title= type.capitalize())
 
         for column in columns:
             table.add_column(column)
@@ -182,20 +137,21 @@ def show_all_games():
 
     cursor = con.cursor()
 
-    cursor.execute("""SELECT games.name, AVG(rating), genre.name, developers.name
+    cursor.execute("""SELECT games.name, AVG(rating), genre.name, developers.name, games.release_year 
                         FROM games JOIN game_genres ON games.id = game_genres.game_id
                             JOIN genre ON game_genres.genre_id = genre.id
                             JOIN developers ON developers.id = games.developer_id
                             LEFT JOIN user_games ON user_games.game_id = games.id
                             
-                            GROUP BY games.name, genre.name, developers.name """)
+                            GROUP BY games.name, genre.name, developers.name, games.release_year
+                            ORDER BY games.name """)
 
     rows = cursor.fetchall()
 
     if not rows:
         print("Don't have any games yet.")
     else:
-        columns = ["Title", "Average Rating", "Genre", "Developer"]
+        columns = ["Title", "Average Rating", "Genre", "Developer", "Release Date"]
 
         table = Table(title= "Games")
 
@@ -203,7 +159,40 @@ def show_all_games():
             table.add_column(column)
 
         for row in rows:
-            table.add_row(row[0], str(row[1]), str(row[2]), str(row[3]))
+            table.add_row(row[0], str(row[1]), str(row[2]), str(row[3]), str(row[4]))
+
+        console = Console()
+        console.print(table)
+
+def show_all_games_from_genre(request_genre):
+
+    cursor = con.cursor()
+
+    cursor.execute("""SELECT games.name, AVG(rating), genre.name, developers.name, games.release_year
+                        FROM games JOIN game_genres ON games.id = game_genres.game_id
+                            JOIN genre ON game_genres.genre_id = genre.id
+                            JOIN developers ON developers.id = games.developer_id
+                            LEFT JOIN user_games ON user_games.game_id = games.id
+                   
+                            WHERE genre.name = (%s)
+                            
+                            GROUP BY games.name, genre.name, developers.name, games.release_year 
+                            ORDER BY games.name """, (request_genre,))
+
+    rows = cursor.fetchall()
+
+    if not rows:
+        print("Don't have any games yet.")
+    else:
+        columns = ["Title", "Average Rating", "Genre", "Developer", "Release Date"]
+
+        table = Table(title= "Games")
+
+        for column in columns:
+            table.add_column(column)
+
+        for row in rows:
+            table.add_row(row[0], str(row[1]), str(row[2]), str(row[3]), str(row[4]))
 
         console = Console()
         console.print(table)
@@ -211,7 +200,7 @@ def show_all_games():
 def show_all_games_from_user(request_user_id):
     cursor = con.cursor()
 
-    cursor.execute("SELECT games.name, rating FROM games JOIN (SELECT * FROM user_games WHERE user_id = %s) ON games.id = game_id",
+    cursor.execute("SELECT games.name, rating, time, review, status FROM games JOIN (SELECT * FROM user_games WHERE user_id = %s) ON games.id = game_id",
                    (request_user_id,))
 
     rows = cursor.fetchall()
@@ -219,7 +208,7 @@ def show_all_games_from_user(request_user_id):
     if not rows:
         print("You don't have any games yet.")
     else:
-        columns = ["Title", "Rating"]
+        columns = ["Title", "Rating", "Time played", "Review", "Status"]
 
         table = Table(title= "Your games")
 
@@ -227,7 +216,7 @@ def show_all_games_from_user(request_user_id):
             table.add_column(column)
 
         for row in rows:
-            table.add_row(row[0], str(row[1]))
+            table.add_row(row[0], str(row[1]), str(row[2]), str(row[3]), str(row[4]))
 
         console = Console()
         console.print(table)

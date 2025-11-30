@@ -114,16 +114,20 @@ def show_insert_and_remove_menu(type):
                     genres_raw = input("Genres (separate by comma): ")
                     genres = [g.strip() for g in genres_raw.split(",")]
 
-                    
+                    add = True
                     for g in genres:
-                            if not database.search_genre(g):
-                                print(f"Invalid genre: {g}")
-                                break
-                    else:
-                        dev = input("Developer: ")
-                        if not database.search_dev(dev):
-                            print("Invalid developer")
-                            continue
+                        if not database.search_genre(g):
+                            print(f"Invalid genre: {g}")
+                            add = False
+                            break
+
+                    if not add:
+                        continue
+                        
+                    dev = input("Developer: ")
+                    if not database.search_dev(dev):
+                        print("Invalid developer")
+                        continue
 
                     database.add_game_adm(title, year, genres, dev)
                     print(f"{title} was added")

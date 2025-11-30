@@ -106,15 +106,87 @@ def add_game_to_user(user_id, game_name, rating, time, review):
     
     con.commit()
 
+def show_all_genres():
+
+    cursor = con.cursor()
+
+    cursor.execute("SELECT name FROM genre")
+
+    rows = cursor.fetchall()
+
+    if not rows:
+        print("Don't have any genres yet.")
+    else:
+        columns = ["Name"]
+
+        table = Table(title= "Genres")
+
+        for column in columns:
+            table.add_column(column)
+
+        for row in rows:
+            table.add_row(row[0])
+
+        console = Console()
+        console.print(table)
+
+def show_all_dev():
+
+    cursor = con.cursor()
+
+    cursor.execute("SELECT name FROM developers")
+
+    rows = cursor.fetchall()
+
+    if not rows:
+        print("Don't have any developers yet.")
+    else:
+        columns = ["Name"]
+
+        table = Table(title= "Developers")
+
+        for column in columns:
+            table.add_column(column)
+
+        for row in rows:
+            table.add_row(row[0])
+
+        console = Console()
+        console.print(table)
+
+def show_all_usr():
+
+    cursor = con.cursor()
+
+    cursor.execute("SELECT name FROM users")
+
+    rows = cursor.fetchall()
+
+    if not rows:
+        print("Don't have any users yet.")
+    else:
+        columns = ["Name"]
+
+        table = Table(title= "Users")
+
+        for column in columns:
+            table.add_column(column)
+
+        for row in rows:
+            table.add_row(row[0])
+
+        console = Console()
+        console.print(table)
 
 def show_all_games():
 
     cursor = con.cursor()
 
     cursor.execute("""SELECT games.name, AVG(rating), genre.name, developers.name
-                        FROM games, game_genres, genre, developers, user_games WHERE
-                            games.id = game_genres.game_id AND game_genres.genre_id = genre.id
-                            AND developers.id = games.developer_id AND user_games.game_id = games.id
+                        FROM games JOIN game_genres ON games.id = game_genres.game_id
+                            JOIN genre ON game_genres.genre_id = genre.id
+                            JOIN developers ON developers.id = games.developer_id
+                            LEFT JOIN user_games ON user_games.game_id = games.id
                             
                             GROUP BY games.name, genre.name, developers.name """)
 

@@ -201,17 +201,21 @@ def show_all_menu():
                 
                 database.show_all_games()
 
-            #Gender
+            #Games with Genre
             case "2":
                 type = input("What genre: ")
                 
-            #Developer
+            #Genre
             case "3":
-                dev = input("Developers name")
-                
+                database.show_all_genres()
+               
+            #Developers
+            case "4":
+                database.show_all_dev()
+
             #User
-            case "4":    
-                usr = input("User name")
+            case "5":
+                database.show_all_usr()
 
             case _:
                 print("Invalid option.")
@@ -259,9 +263,9 @@ def all_menu():
     rows = [
         ["1- All Games"],
         ["2- All Games from of a specific genre"],
-        ["2- All Genres"],
-        ["3- All Developers"],
-        ["4- All Users"],
+        ["3- All Genres"],
+        ["4- All Developers"],
+        ["5- All Users"],
         ["0- Back"]
     ]
 

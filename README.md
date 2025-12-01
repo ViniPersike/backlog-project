@@ -9,3 +9,15 @@ This is what you should write on you .env file if you're working with postgres a
   DB_PASSWORD=your_password
   DB_HOST=localhost
 ```
+
+# backlog-project
+Para fazer a conexão do banco de dados você deve criar um arquivo .env na raíz do projeto.
+Isso é o que você deve escrever no seu .env para conectar o pgadmin:
+```
+  DB_NAME=database_name
+  DB_USER=your_username
+  DB_PASSWORD=your_password
+  DB_HOST=localhost
+```
+Substituindo os valores pelo nome do seu banco, seu usuário e sua senha, o localhost é o padrão do pgadmin.
+Para fazer o backup do banco para realizar testes basta copiar o conteúdo do arquivo, abrir o query tool no pgadmin, colar e rodar.

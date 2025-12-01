@@ -174,11 +174,11 @@ def show_all_games_from_genre(request_genre):
 
     cursor.execute("""SELECT games.name, AVG(rating), genre.name, developers.name, games.release_year
                         FROM games LEFT JOIN game_genres ON games.id = game_genres.game_id
-                            LEFT JOIN genre ON game_genres.genre_id = genre.id
+                            JOIN genre ON game_genres.genre_id = genre.id
                             LEFT JOIN developers ON developers.id = games.developer_id
                             LEFT JOIN user_games ON user_games.game_id = games.id
                    
-                            WHERE genre.name = (%s)
+                            WHERE genre.id IN (SELECT id FROM genre WHERE name = (%s))
                             
                             GROUP BY games.name, genre.name, developers.name, games.release_year 
                             ORDER BY games.name """, (request_genre,))

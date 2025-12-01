@@ -140,14 +140,21 @@ def show_all_games():
 
     cursor = con.cursor()
 
-    cursor.execute("""SELECT games.name, AVG(rating), genre.name, developers.name, games.release_year 
-                        FROM games LEFT JOIN game_genres ON games.id = game_genres.game_id
-                            LEFT JOIN genre ON game_genres.genre_id = genre.id
-                            LEFT JOIN developers ON developers.id = games.developer_id
-                            LEFT JOIN user_games ON user_games.game_id = games.id
-                            
-                            GROUP BY games.name, genre.name, developers.name, games.release_year
-                            ORDER BY games.name """)
+    cursor.execute("""
+        SELECT 
+            games.name,
+            ROUND(AVG(user_games.rating)::numeric, 2),
+            string_agg(DISTINCT genre.name, ', ') AS genres,
+            developers.name,
+            games.release_year
+        FROM games
+        LEFT JOIN game_genres ON games.id = game_genres.game_id
+        LEFT JOIN genre ON game_genres.genre_id = genre.id
+        LEFT JOIN developers ON developers.id = games.developer_id
+        LEFT JOIN user_games ON user_games.game_id = games.id
+        GROUP BY games.name, developers.name, games.release_year
+        ORDER BY games.name
+    """)
 
     rows = cursor.fetchall()
 
@@ -172,7 +179,7 @@ def show_all_games_from_genre(request_genre):
 
     cursor = con.cursor()
 
-    cursor.execute("""SELECT games.name, AVG(rating), genre.name, developers.name, games.release_year
+    cursor.execute("""SELECT games.name, ROUND(AVG(user_games.rating)::numeric, 2), genre.name, developers.name, games.release_year
                         FROM games LEFT JOIN game_genres ON games.id = game_genres.game_id
                             JOIN genre ON game_genres.genre_id = genre.id
                             LEFT JOIN developers ON developers.id = games.developer_id
